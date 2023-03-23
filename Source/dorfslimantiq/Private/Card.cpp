@@ -8,13 +8,10 @@ UCard::UCard() {
 	this->Description = "Description";
 }
 
-
 void UCard::BeginPlay() {
 	Super::BeginPlay();
 }
 
-
-// Called every frame
 void UCard::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
