@@ -7,6 +7,7 @@
 
 class APawn;
 class AHexgrid;
+class ATile;
 UCLASS(Blueprintable, BlueprintType)
 class DORFSLIMANTIQ_API APC : public APlayerController {
 	GENERATED_BODY()
@@ -42,6 +43,11 @@ public:
 	//
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	TObjectPtr<AHexgrid> Hexgrid;
+
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Tile")
+	TObjectPtr<ATile> Selected_Tile_Actor;
+	
 	//
 	//
 	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
@@ -143,8 +149,7 @@ public:
 	// TObjectPtr<ABP_TileStack_C> tile_stack;
 
 
-	// UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	// TObjectPtr<ABP_Tile_C> selected_tile_actor;
+	
 
 
 	// DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRotateTile);

@@ -3,25 +3,48 @@
 
 #include "Tile.h"
 
-// Sets default values
-ATile::ATile()
-{
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+
+ATile::ATile() {
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
-// Called when the game starts or when spawned
-void ATile::BeginPlay()
-{
-	Super::BeginPlay();
+TArray<FVector> ATile::GenerateAvailableSpawnLocations() {
 	
+	TArray<FVector> Available_Locations;
+	
+	if (Socket_Locations.IsEmpty()) return Available_Locations;
+	
+	FHitResult Hit;
+	FVector Trace_Start = GetActorLocation();
+	FCollisionQueryParams Query_Params;
+	Query_Params.AddIgnoredActor(this);
+
+	for (const FVector& Location : Socket_Locations) {
+		GetWorld()->LineTraceSingleByChannel(Hit, Trace_Start, Location, ECC_Visibility, Query_Params);
+		if (Hit.bBlockingHit) continue;
+
+		Available_Locations.Push(Location);
+	}
+
+	return Available_Locations;
 }
 
-// Called every frame
-void ATile::Tick(float DeltaTime)
-{
+void ATile::GenerateSocketLocations() {
+	const UStaticMeshComponent* Static_Mesh = this->FindComponentByClass<UStaticMeshComponent>();
+	if (!Static_Mesh)return;
+	TArray<FName> Socket_Names = Static_Mesh->GetAllSocketNames();
+
+	for (const FName& Name : Socket_Names) {
+		Socket_Locations.Push(Static_Mesh->GetSocketLocation(Name));
+	}
+}
+
+
+void ATile::BeginPlay() {
+	Super::BeginPlay();
+}
+
+
+void ATile::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-
 }
-

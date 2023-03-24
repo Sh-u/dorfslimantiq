@@ -7,20 +7,23 @@
 #include "Tile.generated.h"
 
 UCLASS()
-class DORFSLIMANTIQ_API ATile : public AActor
-{
+class DORFSLIMANTIQ_API ATile : public AActor {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
+public:
 	ATile();
+	UFUNCTION(BlueprintCallable, Category="Default")
+	TArray<FVector> GenerateAvailableSpawnLocations();
+	UFUNCTION(BlueprintCallable, Category="Default")
+	void GenerateSocketLocations();
+
+
+	UPROPERTY(BlueprintReadWrite, Category="Default")
+	TArray<FVector> Socket_Locations;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
+public:
 	virtual void Tick(float DeltaTime) override;
-
 };
