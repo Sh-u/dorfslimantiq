@@ -1,5 +1,7 @@
 #pragma once
 
+
+#include "Tiletype.h"
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "PC.generated.h"
@@ -8,6 +10,9 @@
 class APawn;
 class AHexgrid;
 class ATile;
+class ATileStack;
+class UUIWidget;
+
 UCLASS(Blueprintable, BlueprintType)
 class DORFSLIMANTIQ_API APC : public APlayerController {
 	GENERATED_BODY()
@@ -36,6 +41,9 @@ class DORFSLIMANTIQ_API APC : public APlayerController {
 	// 	UFUNCTION(BlueprintCallable)
 	// 	void spawnBundles();
 
+	UFUNCTION(BlueprintCallable, Category="Default")
+	void HandleOnPickTileFromStack();
+
 public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	TObjectPtr<APawn> Camera_Pawn;
@@ -47,7 +55,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Tile")
 	TObjectPtr<ATile> Selected_Tile_Actor;
-	
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ATile> BP_Tile;
+
 	//
 	//
 	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
@@ -58,7 +69,8 @@ public:
 	// double grid_y_size;
 
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Camera")
+	UPROPERTY
+	(BlueprintReadWrite, EditDefaultsOnly, Category="Camera")
 	FVector Camera_Movement;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Camera", meta=(ClampMin = "0.1", UIMin = "0.1"))
@@ -72,7 +84,8 @@ public:
 	float Max_Camera_Speed;
 
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Camera", meta=(ClampMin = "0.1", ClampMax = "1.0", UIMin = "0.1", UIMax = "1.0"))
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Camera",
+		meta=(ClampMin = "0.1", ClampMax = "1.0", UIMin = "0.1", UIMax = "1.0"))
 	float Camera_Zoom;
 
 
@@ -127,16 +140,16 @@ public:
 	// FPickBundle PickBundle;
 
 
-	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
-	// bool disable_raycasting;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Game|Cpp")
+	bool Disable_Raycast;
 
 
-	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
-	// TEnumAsByte<E_TileTypes> selected_tile;
+	UPROPERTY(BlueprintReadWrite, Category="Default")
+	ETiletype Selected_Tile_Type;
 
 
-	// UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	// TObjectPtr<UWBP_UI_C> UI;
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
+	TObjectPtr<UUIWidget> UI;
 
 
 	// DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPickItemFromStack);
@@ -145,11 +158,8 @@ public:
 	// FPickItemFromStack PickItemFromStack;
 
 
-	// UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	// TObjectPtr<ABP_TileStack_C> tile_stack;
-
-
-	
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
+	TObjectPtr<ATileStack> Tile_Stack;
 
 
 	// DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRotateTile);
@@ -177,6 +187,8 @@ private:
 	void MoveY(float Value);
 	void ZoomOut();
 	void ZoomIn();
+
+	void PlaceTile();
 
 	void MoveCamera() const;
 	void ZoomCamera() const;

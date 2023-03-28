@@ -11,7 +11,7 @@ class ATile;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FReplaceTile, ATile*, Selected_Tile, const FVector&, Location);
 
 
-UCLASS()
+UCLASS(Blueprintable)
 class DORFSLIMANTIQ_API AHexgrid : public AActor {
 	GENERATED_BODY()
 
@@ -19,26 +19,38 @@ public:
 	AHexgrid();
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable, Category="Cpp")
+	UFUNCTION(BlueprintCallable, Category="Game|Cpp")
 	void SetMapSize(float X, float Y);
 
-	UFUNCTION(BlueprintCallable, Category="Cpp")
-	void SpawnInitTiles();
+	UFUNCTION(BlueprintCallable, Category="Game|Cpp")
+	void SpawnGhostTiles(UPARAM(ref) TArray<FVector>& Locations);
 
-	UFUNCTION(BlueprintCallable, Category="Cpp")
-	void SpawnGhostTiles(TArray<FVector> Locations);
+	UFUNCTION(BlueprintCallable)
+	FVector2D CalculateGridBounds() const;
 
+	UFUNCTION(BlueprintCallable)
+	void HandleReplaceTIle(ATile* Selected_Tile, UPARAM(ref) FVector& Location);
+	
+	UFUNCTION(BlueprintCallable)
+	void SpawnInitialTiles();
+
+
+	static FAttachmentTransformRules ConstructDefaultAttachmentRules();
+	
+	UPROPERTY()
+	bool Spawned;
 protected:
 	virtual void BeginPlay() override;
+	
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	float Map_Size_Multiplier;
 
-	UPROPERTY(BlueprintReadWrite, Category="Default")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Default")
 	float Grid_X_Size;
 
-	UPROPERTY(BlueprintReadWrite, Category="Default")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Default")
 	float Grid_Y_Size;
 
 	UPROPERTY(BlueprintReadWrite, Category="Default")
@@ -47,7 +59,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	TArray<TObjectPtr<ATile>> Spawned_Tiles;
 
-	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Default")
+	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Game|Cpp")
 	FReplaceTile OnReplaceTile;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -55,4 +67,5 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ATile> Ghost_Tile;
+	
 };
