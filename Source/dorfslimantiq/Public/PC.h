@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include "Tiletype.h"
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "PC.generated.h"
@@ -13,19 +12,13 @@ class ATile;
 class ATileStack;
 class UUIWidget;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelUp);
+
 UCLASS(Blueprintable, BlueprintType)
 class DORFSLIMANTIQ_API APC : public APlayerController {
 	GENERATED_BODY()
 
 	// public:
-	// 	UFUNCTION(BlueprintCallable)
-	// 	void moveCamera();
-	//
-	//
-	// 	UFUNCTION(BlueprintCallable)
-	// 	void setMapSize(double box_extent_x, double box_extent_y);
-	//
-	//
 	// 	UFUNCTION(BlueprintCallable)
 	// 	void addCardToInventory();
 	//
@@ -47,27 +40,28 @@ class DORFSLIMANTIQ_API APC : public APlayerController {
 public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	TObjectPtr<APawn> Camera_Pawn;
-	//
-	//
+
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	TObjectPtr<AHexgrid> Hexgrid;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
+	TObjectPtr<ATileStack> Tile_Stack;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Tile")
-	TObjectPtr<ATile> Selected_Tile_Actor;
+	UPROPERTY(BlueprintReadWrite, Category="Default")
+	TObjectPtr<UUserWidget> UI;
 
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ATile> BP_Tile;
+	UPROPERTY(BlueprintReadWrite, Category="Default")
+	TObjectPtr<UUserWidget> Score_Text_Popup;
 
-	//
-	//
-	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
-	// double grid_x_size;
-	//
-	//
-	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
-	// double grid_y_size;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
+	int32 Score;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
+	int32 Threshold;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
+	int32 Level;
 
 	UPROPERTY
 	(BlueprintReadWrite, EditDefaultsOnly, Category="Camera")
@@ -96,38 +90,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Camera")
 	float Max_Zoom_Distance;
 
+	
 
-	// UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	// double mouse_x;
-	//
-	//
-	// UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	// double mouse_y;
-
-
-	// DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FReplaceTile, FVector, spawn_location, ABP_Tile_C*, target_tile,
-	//                                                int32, score_to_add);
-
-	// UPROPERTY(BlueprintAssignable, EditDefaultsOnly, Category="Default")
-	// FReplaceTile ReplaceTile;
-
-
-	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
-	// int32 score;
-	//
-	//
-	// UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	// int32 threshold;
-	//
-	//
-	// DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelUp);
-	//
-	// UPROPERTY(BlueprintAssignable, EditDefaultsOnly, Category="Default")
-	// FLevelUp LevelUp;
-	//
-	//
-	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
-	// int32 level;
 
 
 	// UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
@@ -140,42 +104,26 @@ public:
 	// FPickBundle PickBundle;
 
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Game|Cpp")
-	bool Disable_Raycast;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
+	bool Disable_Tracing;
 
 
-	UPROPERTY(BlueprintReadWrite, Category="Default")
-	ETiletype Selected_Tile_Type;
+	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
+	TSubclassOf<ATile> BP_Tile;
 
+	UPROPERTY(EditDefaultsOnly, Category = "BP_ASSETS")
+	TSubclassOf<UUserWidget> BP_UI;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	TObjectPtr<UUIWidget> UI;
-
-
-	// DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPickItemFromStack);
-	//
-	// UPROPERTY(BlueprintAssignable, EditDefaultsOnly, Category="Default")
-	// FPickItemFromStack PickItemFromStack;
-
-
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	TObjectPtr<ATileStack> Tile_Stack;
+	UPROPERTY(EditDefaultsOnly, Category = "BP_ASSETS")
+	TSubclassOf<UUserWidget> BP_ScorePopup;
 
 
 	// DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRotateTile);
 	//
 	// UPROPERTY(BlueprintAssignable, EditDefaultsOnly, Category="Default")
 	// FRotateTile RotateTile;
-
-
-	// UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	// TObjectPtr<UWBP_ScorePopup_C> score_text_popup;
-
-
-	// DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCreatedScorePopupWidget);
-	//
-	// UPROPERTY(BlueprintAssignable, EditDefaultsOnly, Category="Default")
-	// FCreatedScorePopupWidget CreatedScorePopupWidget;
+	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Default")
+	FLevelUp OnLevelUp;
 
 protected:
 	virtual void SetupInputComponent() override;
@@ -189,7 +137,7 @@ private:
 	void ZoomIn();
 
 	void PlaceTile();
-
+	void RotateSelectedTile();
 	void MoveCamera() const;
 	void ZoomCamera() const;
 };

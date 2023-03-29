@@ -17,13 +17,16 @@ public:
 	TArray<FVector> GenerateAvailableSpawnLocations();
 	UFUNCTION(BlueprintCallable, Category="Default")
 	void GenerateSocketLocations();
+	UFUNCTION(BlueprintImplementableEvent, Category="Default")
+	void HandleTileRotate();
 
-
-	UPROPERTY(BlueprintReadWrite, Category="Default")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Default")
 	ETiletype Tile_Type;
 
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	TArray<FVector> Socket_Locations;
+
+	
 
 protected:
 	virtual void BeginPlay() override;

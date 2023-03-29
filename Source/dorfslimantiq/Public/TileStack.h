@@ -7,7 +7,7 @@
 #include "TileStack.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPickTileFromStack);
-
+class ATile;
 UCLASS()
 class DORFSLIMANTIQ_API ATileStack : public AActor {
 	GENERATED_BODY()
@@ -17,6 +17,9 @@ public:
 
 	UFUNCTION( Category="Default")
 	void AddTilesToStack(uint32 Amount);
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Tile")
+	TObjectPtr<ATile> Selected_Tile;
 	
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	TArray<ETiletype> Available_Tiles;

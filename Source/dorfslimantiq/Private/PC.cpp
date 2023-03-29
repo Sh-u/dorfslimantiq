@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Tile.h"
 #include "Tiletype.h"
+#include "UIWidget.h"
 
 
 void APC::BeginPlay() {
@@ -27,8 +28,18 @@ void APC::BeginPlay() {
 	AActor* Hexgrid_Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AHexgrid::StaticClass());
 
 	if (!Hexgrid_Actor) { return; }
-
 	Hexgrid = Cast<AHexgrid>(Hexgrid_Actor);
+	
+	
+	if (!BP_UI) return;
+	UI = CreateWidget<UUserWidget>(this, BP_UI);
+	UI->AddToViewport();
+
+	if (!BP_ScorePopup) return;
+
+	Score_Text_Popup = CreateWidget<UUserWidget>(this, BP_ScorePopup);
+	Score_Text_Popup->AddToViewport();
+	Score_Text_Popup->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void APC::Tick(const float DeltaSeconds) {
@@ -63,20 +74,29 @@ void APC::ZoomIn() {
 }
 
 void APC::PlaceTile() {
-	UE_LOG(LogTemp, Warning, TEXT("PLACE TILE 1"));
-	if (Disable_Raycast || !Selected_Tile_Actor) return;
+	// UE_LOG(LogTemp, Warning, TEXT("PLACE TILE 1"));
+	if (Disable_Tracing || !Tile_Stack->Selected_Tile) return;
 	FHitResult Hit;
-	UE_LOG(LogTemp, Warning, TEXT("PLACE TILE 2"));
+
 	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-	UE_LOG(LogTemp, Warning, TEXT("PLACE TILE 3: %s"), *Hit.GetActor()->GetName());
+
 
 	if (!Hit.bBlockingHit || !IsValid(Hit.GetActor())) return;
 	ATile* Tile = Cast<ATile>(Hit.GetActor());
-	UE_LOG(LogTemp, Warning, TEXT("PLACE TILE 3: %s"), *GetTileTypeName(Tile->Tile_Type));
+	// UE_LOG(LogTemp, Warning, TEXT("Hit tile type: %s"), *GetTileTypeName(Tile->Tile_Type));
 	if (Tile->Tile_Type != ETiletype::Ghost) return;
-	
-	Hexgrid->OnReplaceTile.Broadcast(Selected_Tile_Actor, Tile->GetActorLocation());
+
+	Hexgrid->OnReplaceTile.Broadcast(Tile_Stack->Selected_Tile, Tile->GetActorLocation());
 	Tile->Destroy();
+	Tile_Stack->OnPickTileFromStack.Broadcast();
+}
+
+void APC::RotateSelectedTile() {
+	if (!Tile_Stack->Selected_Tile) return;
+
+	FRotator Rotation = Tile_Stack->Selected_Tile->GetActorRotation();
+	Rotation.Yaw += 60.0f;
+	Tile_Stack->Selected_Tile->SetActorRotation(Rotation);
 }
 
 void APC::MoveCamera() const {
@@ -105,11 +125,11 @@ void APC::ZoomCamera() const {
 
 
 void APC::HandleOnPickTileFromStack() {
-	UE_LOG(LogTemp, Warning, TEXT("CALLING PICK ITEM"));
+	// UE_LOG(LogTemp, Warning, TEXT("CALLING PICK ITEM"));
 	if (!Tile_Stack->Available_Tiles.IsEmpty()) {
 		const ETiletype Tile_Type = Tile_Stack->Available_Tiles[0];
 		Tile_Stack->Available_Tiles.RemoveAt(0);
-		Selected_Tile_Type = Tile_Type;
+		
 		//remove from ui widget
 		const FVector Location = FVector(0, 800, 0);
 		FTransform Transform;
@@ -118,10 +138,10 @@ void APC::HandleOnPickTileFromStack() {
 		ATile* Tile = GetWorld()->SpawnActorDeferred<ATile>(BP_Tile, Transform);
 		Tile->Tile_Type = Tile_Type;
 		UGameplayStatics::FinishSpawningActor(Tile, Transform);
-		Selected_Tile_Actor = Tile;
+		Tile_Stack->Selected_Tile = Tile;
 	}
 	else {
-		Selected_Tile_Actor = nullptr;
+		Tile_Stack->Selected_Tile = nullptr;
 		//remove from stack widget
 	}
 }
@@ -134,4 +154,5 @@ void APC::SetupInputComponent() {
 	InputComponent->BindAction("ZoomIn", IE_Pressed, this, &APC::ZoomIn);
 	InputComponent->BindAction("ZoomOut", IE_Pressed, this, &APC::ZoomOut);
 	InputComponent->BindAction("PlaceTile", IE_Pressed, this, &APC::PlaceTile);
+	InputComponent->BindAction("Rotate", IE_Pressed, this, &APC::RotateSelectedTile);
 }

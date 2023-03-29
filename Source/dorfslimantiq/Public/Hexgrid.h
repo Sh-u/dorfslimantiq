@@ -19,10 +19,10 @@ public:
 	AHexgrid();
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable, Category="Game|Cpp")
-	void SetMapSize(float X, float Y);
+	UFUNCTION(BlueprintCallable, Category="Default")
+	void SetMapSize(const float X, const float Y);
 
-	UFUNCTION(BlueprintCallable, Category="Game|Cpp")
+	UFUNCTION(BlueprintCallable, Category="Default")
 	void SpawnGhostTiles(UPARAM(ref) TArray<FVector>& Locations);
 
 	UFUNCTION(BlueprintCallable)
@@ -44,6 +44,14 @@ protected:
 	
 
 public:
+
+	UPROPERTY(BlueprintReadWrite, Category="Default")
+	TObjectPtr<ATile> Target_Tile;
+
+	UPROPERTY(BlueprintReadWrite, Category="Default")
+	TArray<TObjectPtr<ATile>> Spawned_Tiles;
+
+	
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	float Map_Size_Multiplier;
 
@@ -52,20 +60,16 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Default")
 	float Grid_Y_Size;
+	
 
-	UPROPERTY(BlueprintReadWrite, Category="Default")
-	TObjectPtr<ATile> Target_Tile;
+	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
+	TSubclassOf<ATile> Initial_Tile;
 
-	UPROPERTY(BlueprintReadWrite, Category="Default")
-	TArray<TObjectPtr<ATile>> Spawned_Tiles;
+	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
+	TSubclassOf<ATile> Ghost_Tile;
+
 
 	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Game|Cpp")
 	FReplaceTile OnReplaceTile;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ATile> Initial_Tile;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ATile> Ghost_Tile;
 	
 };
