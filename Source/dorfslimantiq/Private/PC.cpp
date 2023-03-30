@@ -1,15 +1,13 @@
 #include "PC.h"
-
 #include "CameraPawn.h"
 #include "Hexgrid.h"
-
 #include "TileStack.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Tile.h"
 #include "Tiletype.h"
 #include "UIWidget.h"
-
+#include "Components/VerticalBox.h"
 
 void APC::BeginPlay() {
 	Super::BeginPlay();
@@ -29,8 +27,8 @@ void APC::BeginPlay() {
 
 	if (!Hexgrid_Actor) { return; }
 	Hexgrid = Cast<AHexgrid>(Hexgrid_Actor);
-	
-	
+
+
 	if (!BP_UI) return;
 	UI = CreateWidget<UUserWidget>(this, BP_UI);
 	UI->AddToViewport();
@@ -51,28 +49,6 @@ void APC::Tick(const float DeltaSeconds) {
 }
 
 
-void APC::MoveX(const float Value) {
-	const double Speed = FMath::Lerp(Min_Camera_Speed, Max_Camera_Speed, Camera_Zoom);
-	Camera_Movement.X = FMath::Clamp(Value, -1.0f, 1.0f) * Speed;
-}
-
-void APC::MoveY(const float Value) {
-	const double Speed = FMath::Lerp(Min_Camera_Speed, Max_Camera_Speed, Camera_Zoom);
-	Camera_Movement.Y = FMath::Clamp(Value, -1.0f, 1.0f) * Speed;
-}
-
-void APC::ZoomOut() {
-	const float Value = Camera_Zoom - Zoom_Strength;
-	const float New_Zoom = FMath::Clamp(Value, 0.1f, 1.0f);
-	Camera_Zoom = New_Zoom;
-}
-
-void APC::ZoomIn() {
-	const float Value = Camera_Zoom + Zoom_Strength;
-	const float New_Zoom = FMath::Clamp(Value, 0.1f, 1.0f);
-	Camera_Zoom = New_Zoom;
-}
-
 void APC::PlaceTile() {
 	// UE_LOG(LogTemp, Warning, TEXT("PLACE TILE 1"));
 	if (Disable_Tracing || !Tile_Stack->Selected_Tile) return;
@@ -90,6 +66,35 @@ void APC::PlaceTile() {
 	Tile->Destroy();
 	Tile_Stack->OnPickTileFromStack.Broadcast();
 }
+
+void APC::HandleOnPickTileFromStack() {
+	// UE_LOG(LogTemp, Warning, TEXT("CALLING PICK ITEM"));
+	if (!Tile_Stack->Available_Tiles.IsEmpty()) {
+		const ETiletype Tile_Type = Tile_Stack->Available_Tiles[0];
+		Tile_Stack->Available_Tiles.RemoveAt(0);
+
+		UUIWidget* UIWidget = Cast<UUIWidget>(UI);
+
+		if (UIWidget && UIWidget->UMG_Tile_Stack_Box->HasAnyChildren()) {
+			UE_LOG(LogTemp, Warning, TEXT("Widget cast success"));
+			UIWidget->UMG_Tile_Stack_Box->RemoveChildAt(0);
+		}
+
+		const FVector Location = FVector(0, 800, 0);
+		FTransform Transform;
+		Transform.SetLocation(Location);
+
+		ATile* Tile = GetWorld()->SpawnActorDeferred<ATile>(BP_Tile, Transform);
+		Tile->Tile_Type = Tile_Type;
+		UGameplayStatics::FinishSpawningActor(Tile, Transform);
+		Tile_Stack->Selected_Tile = Tile;
+	}
+	else {
+		Tile_Stack->Selected_Tile = nullptr;
+		//remove from stack widget
+	}
+}
+
 
 void APC::RotateSelectedTile() {
 	if (!Tile_Stack->Selected_Tile) return;
@@ -124,26 +129,26 @@ void APC::ZoomCamera() const {
 }
 
 
-void APC::HandleOnPickTileFromStack() {
-	// UE_LOG(LogTemp, Warning, TEXT("CALLING PICK ITEM"));
-	if (!Tile_Stack->Available_Tiles.IsEmpty()) {
-		const ETiletype Tile_Type = Tile_Stack->Available_Tiles[0];
-		Tile_Stack->Available_Tiles.RemoveAt(0);
-		
-		//remove from ui widget
-		const FVector Location = FVector(0, 800, 0);
-		FTransform Transform;
-		Transform.SetLocation(Location);
+void APC::MoveX(const float Value) {
+	const double Speed = FMath::Lerp(Min_Camera_Speed, Max_Camera_Speed, Camera_Zoom);
+	Camera_Movement.X = FMath::Clamp(Value, -1.0f, 1.0f) * Speed;
+}
 
-		ATile* Tile = GetWorld()->SpawnActorDeferred<ATile>(BP_Tile, Transform);
-		Tile->Tile_Type = Tile_Type;
-		UGameplayStatics::FinishSpawningActor(Tile, Transform);
-		Tile_Stack->Selected_Tile = Tile;
-	}
-	else {
-		Tile_Stack->Selected_Tile = nullptr;
-		//remove from stack widget
-	}
+void APC::MoveY(const float Value) {
+	const double Speed = FMath::Lerp(Min_Camera_Speed, Max_Camera_Speed, Camera_Zoom);
+	Camera_Movement.Y = FMath::Clamp(Value, -1.0f, 1.0f) * Speed;
+}
+
+void APC::ZoomOut() {
+	const float Value = Camera_Zoom - Zoom_Strength;
+	const float New_Zoom = FMath::Clamp(Value, 0.1f, 1.0f);
+	Camera_Zoom = New_Zoom;
+}
+
+void APC::ZoomIn() {
+	const float Value = Camera_Zoom + Zoom_Strength;
+	const float New_Zoom = FMath::Clamp(Value, 0.1f, 1.0f);
+	Camera_Zoom = New_Zoom;
 }
 
 void APC::SetupInputComponent() {

@@ -30,28 +30,27 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void HandleReplaceTIle(ATile* Selected_Tile, UPARAM(ref) FVector& Location);
-	
+
 	UFUNCTION(BlueprintCallable)
 	void SpawnInitialTiles();
 
 
 	static FAttachmentTransformRules ConstructDefaultAttachmentRules();
-	
+
 	UPROPERTY()
 	bool Spawned;
+
 protected:
 	virtual void BeginPlay() override;
-	
 
 public:
-
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	TObjectPtr<ATile> Target_Tile;
 
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	TArray<TObjectPtr<ATile>> Spawned_Tiles;
 
-	
+
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	float Map_Size_Multiplier;
 
@@ -60,7 +59,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Default")
 	float Grid_Y_Size;
-	
+
 
 	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
 	TSubclassOf<ATile> Initial_Tile;
@@ -71,5 +70,4 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Game|Cpp")
 	FReplaceTile OnReplaceTile;
-	
 };

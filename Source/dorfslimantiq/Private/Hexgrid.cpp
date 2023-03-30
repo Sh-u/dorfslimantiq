@@ -15,7 +15,9 @@ void AHexgrid::BeginPlay() {
 	SpawnInitialTiles();
 
 	const FVector2D BoxExtent = CalculateGridBounds();
-	SetMapSize(BoxExtent.X, BoxExtent.Y);
+	const float X = BoxExtent.X * Map_Size_Multiplier;
+	const float Y = BoxExtent.Y * Map_Size_Multiplier;
+	SetMapSize(X, Y);
 	// for (const auto Child : this->Children) {
 	// 	UE_LOG(LogTemp, Warning, TEXT("Child: %s"), *Child->GetName());
 	// }
@@ -27,8 +29,8 @@ void AHexgrid::Tick(float DeltaTime) {
 
 
 void AHexgrid::SetMapSize(const float X, const float Y) {
-	Grid_X_Size = X * Map_Size_Multiplier;
-	Grid_Y_Size = Y * Map_Size_Multiplier;
+	Grid_X_Size += X;
+	Grid_Y_Size += Y;
 }
 
 void AHexgrid::SpawnGhostTiles(TArray<FVector>& Locations) {
@@ -73,9 +75,8 @@ void AHexgrid::HandleReplaceTIle(ATile* Selected_Tile, FVector& Location) {
 	FVector Origin;
 	FVector BoxExtent;
 	Selected_Tile->GetActorBounds(false, Origin, BoxExtent, false);
-	const float Expanded_X = Grid_X_Size + BoxExtent.X;
-	const float Expanded_Y = Grid_Y_Size + BoxExtent.Y;
-	SetMapSize(Expanded_X, Expanded_Y);
+
+	SetMapSize(BoxExtent.X, BoxExtent.Y);
 
 	Selected_Tile->AttachToActor(this, Attachment_Rules);
 	Selected_Tile->GenerateSocketLocations();
@@ -85,7 +86,7 @@ void AHexgrid::HandleReplaceTIle(ATile* Selected_Tile, FVector& Location) {
 
 
 void AHexgrid::SpawnInitialTiles() {
-	UE_LOG(LogTemp, Warning, TEXT("Spawn: " ));
+	
 	FActorSpawnParameters Spawn_Params;
 	Spawn_Params.Owner = this;
 

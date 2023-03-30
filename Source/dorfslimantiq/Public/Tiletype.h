@@ -18,5 +18,11 @@ enum class ETiletype : uint8 {
 
 inline FString GetTileTypeName(ETiletype EnumValue) {
 	const UEnum* EnumPtr = FindObject<UEnum>(nullptr, TEXT("/Script/dorfslimantiq.ETileType"), true);
-	return EnumPtr ? EnumPtr->GetNameByValue(static_cast<uint8>(EnumValue)).ToString() : FString("Invalid enum name.");
+	
+	if (!EnumPtr) return FString("Invalid enum name.");
+
+	const FString Name = EnumPtr->GetNameByValue(static_cast<uint8>(EnumValue)).ToString();
+	int32 Pos = 0;
+	Name.FindLastChar(':', Pos);
+	return Name.RightChop(Pos + 1);
 }
