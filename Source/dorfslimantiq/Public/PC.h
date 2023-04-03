@@ -90,9 +90,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Camera")
 	float Max_Zoom_Distance;
 
-	
-
-
 
 	// UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	// TArray<TEnumAsByte<E_TileTypes>> inventory;
@@ -125,10 +122,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Default")
 	FLevelUp OnLevelUp;
 
+
+	virtual void Tick(float DeltaSeconds) override;
+
 protected:
 	virtual void SetupInputComponent() override;
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
 
 private:
 	void MoveX(float Value);

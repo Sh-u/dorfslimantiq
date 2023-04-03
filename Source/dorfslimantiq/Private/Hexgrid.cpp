@@ -2,6 +2,8 @@
 
 
 #include "Hexgrid.h"
+
+#include "GhostTile.h"
 #include "Tile.h"
 
 AHexgrid::AHexgrid() {
@@ -38,7 +40,7 @@ void AHexgrid::SpawnGhostTiles(TArray<FVector>& Locations) {
 	// UE_LOG(LogTemp, Warning, TEXT("Locations: " ));
 	for (auto Location : Locations) {
 		// UE_LOG(LogTemp, Warning, TEXT("Child: %s"), *Location.ToString());
-		ATile* Tile = GetWorld()->SpawnActor<ATile>(Ghost_Tile);
+		AGhostTile* Tile = GetWorld()->SpawnActor<AGhostTile>(Ghost_Tile);
 		if (!Tile) continue;
 
 		Tile->AttachToActor(this, AttachmentRules);

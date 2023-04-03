@@ -2,10 +2,23 @@
 
 
 #include "TileStack.h"
+#include "Tile.h"
 #include "Tiletype.h"
+
 
 ATileStack::ATileStack() {
 	PrimaryActorTick.bCanEverTick = true;
+}
+
+void ATileStack::BeginPlay() {
+	Super::BeginPlay();
+
+	AddTilesToStack(10);
+	
+}
+
+void ATileStack::Tick(const float DeltaTime) {
+	Super::Tick(DeltaTime);
 }
 
 void ATileStack::AddTilesToStack(const uint32 Amount) {
@@ -14,17 +27,4 @@ void ATileStack::AddTilesToStack(const uint32 Amount) {
 		ETiletype Tile_Type = static_cast<ETiletype>(n);
 		Available_Tiles.Push(Tile_Type);
 	}
-	// UE_LOG(LogTemp, Warning, TEXT("Lengthb: %d"), static_cast<int32>(Available_Tiles.Num()));
-	// for (const auto Stack : Available_Tiles) {
-	// 	UE_LOG(LogTemp, Warning, TEXT("Stack: %s"), *GetTileTypeName(Stack))
-	// }
-}
-
-void ATileStack::BeginPlay() {
-	Super::BeginPlay();
-	AddTilesToStack(10);
-}
-
-void ATileStack::Tick(const float DeltaTime) {
-	Super::Tick(DeltaTime);
 }

@@ -7,6 +7,9 @@
 #include "TileStack.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPickTileFromStack);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRotateSelectedTile);
+
 class ATile;
 UCLASS()
 class DORFSLIMANTIQ_API ATileStack : public AActor {
@@ -15,17 +18,22 @@ class DORFSLIMANTIQ_API ATileStack : public AActor {
 public:
 	ATileStack();
 
-	UFUNCTION( Category="Default")
+	UFUNCTION(Category="Default")
 	void AddTilesToStack(uint32 Amount);
+	
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Tile")
 	TObjectPtr<ATile> Selected_Tile;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	TArray<ETiletype> Available_Tiles;
 
 	UPROPERTY(BlueprintAssignable, Category="Default")
 	FOnPickTileFromStack OnPickTileFromStack;
+
+	UPROPERTY(BlueprintAssignable, Category="Default")
+	FOnRotateSelectedTile OnRotateSelectedTile;
+
 protected:
 	virtual void BeginPlay() override;
 

@@ -14,6 +14,15 @@ class DORFSLIMANTIQ_API AGhostTile final : public ATile {
 	GENERATED_BODY()
 
 public:
+
+	UFUNCTION()
+	void OnMouseOver(UPrimitiveComponent* TouchedComponent);
+	UFUNCTION()
+	void OnMouseEnd(UPrimitiveComponent* TouchedComponent);
+
+	UFUNCTION()
+	void HandleOnRotateSelectedTile();
+	
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<ATileStack> Tile_Stack;
 	UPROPERTY(BlueprintReadOnly)
@@ -25,6 +34,5 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void NotifyActorBeginCursorOver() override;
-	virtual void NotifyActorEndCursorOver() override;
+	
 };

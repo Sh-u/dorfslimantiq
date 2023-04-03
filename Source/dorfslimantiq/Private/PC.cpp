@@ -37,7 +37,7 @@ void APC::BeginPlay() {
 
 	Score_Text_Popup = CreateWidget<UUserWidget>(this, BP_ScorePopup);
 	Score_Text_Popup->AddToViewport();
-	Score_Text_Popup->SetVisibility(ESlateVisibility::Collapsed);
+	Score_Text_Popup->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void APC::Tick(const float DeltaSeconds) {
@@ -68,7 +68,7 @@ void APC::PlaceTile() {
 }
 
 void APC::HandleOnPickTileFromStack() {
-	// UE_LOG(LogTemp, Warning, TEXT("CALLING PICK ITEM"));
+	
 	if (!Tile_Stack->Available_Tiles.IsEmpty()) {
 		const ETiletype Tile_Type = Tile_Stack->Available_Tiles[0];
 		Tile_Stack->Available_Tiles.RemoveAt(0);
@@ -90,6 +90,7 @@ void APC::HandleOnPickTileFromStack() {
 		Tile_Stack->Selected_Tile = Tile;
 	}
 	else {
+		UE_LOG(LogTemp, Warning, TEXT("else"));
 		Tile_Stack->Selected_Tile = nullptr;
 		//remove from stack widget
 	}
@@ -100,8 +101,10 @@ void APC::RotateSelectedTile() {
 	if (!Tile_Stack->Selected_Tile) return;
 
 	FRotator Rotation = Tile_Stack->Selected_Tile->GetActorRotation();
+	UE_LOG(LogTemp, Warning, TEXT("ROT :%s"), *Rotation.ToString());
 	Rotation.Yaw += 60.0f;
 	Tile_Stack->Selected_Tile->SetActorRotation(Rotation);
+	Tile_Stack->OnRotateSelectedTile.Broadcast();
 }
 
 void APC::MoveCamera() const {

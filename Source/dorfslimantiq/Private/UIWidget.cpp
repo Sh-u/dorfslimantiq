@@ -9,7 +9,7 @@
 
 
 FText UUIWidget::ShowSelectedItemText() const {
-	if (!Tile_Stack || Tile_Stack->Selected_Tile->Tile_Type == ETiletype::Empty) {
+	if (!Tile_Stack->Selected_Tile || Tile_Stack->Selected_Tile->Tile_Type == ETiletype::Empty) {
 		return FText::FromString(TEXT("None"));
 	}
 
