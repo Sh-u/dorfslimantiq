@@ -4,9 +4,13 @@
 #include "GhostTile.h"
 #include "Hexgrid.h"
 #include "ScorePopupWidget.h"
+#include "ScoreRules.h"
 #include "TileStack.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Components/TextBlock.h"
+#include "dorfslimantiq/Public/Utils.h"
+
 
 void AGhostTile::BeginPlay() {
 	Super::BeginPlay();
@@ -71,6 +75,34 @@ void AGhostTile::OnMouseOver(UPrimitiveComponent* TouchedComponent) {
 
 	Score_Popup_Widget->Render_Location = this->GetActorLocation();
 	Score_Popup_Widget->SetVisibility(ESlateVisibility::HitTestInvisible);
+
+	FHitResult Hit;
+	FVector Start = this->GetActorLocation();
+
+	TArray<ATile*> Adjacent_Tiles;
+	for (const auto& Socket_Location : Socket_Locations) {
+		FVector Hit_Location = Start + Socket_Location;
+		GetWorld()->LineTraceSingleByChannel(Hit, Start, Hit_Location, ECC_Visibility);
+		// DrawDebugLine(GetWorld(), Start, Hit_Location, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
+		if (!Hit.bBlockingHit || !IsValid(Hit.GetActor())) continue;
+		ATile* Hit_Tile = Cast<ATile>(Hit.GetActor());
+		DBG("Hit actor: %s, Type: %s", *Hit.GetActor()->GetName(), *GetTileTypeName(Hit_Tile->Tile_Type));
+		if (!Hit_Tile || Hit_Tile->Tile_Type == ETiletype::Empty || Hit_Tile->Tile_Type == ETiletype::Ghost) continue;
+		Adjacent_Tiles.Push(Hit_Tile);
+	}
+
+	if (Adjacent_Tiles.IsEmpty()) {
+		DBG("No adjacent tiles");
+		return;
+	}
+
+	if (!Score_Rules) {
+		UE_LOG(LogTemp, Warning, TEXT("Score rules not found log."));
+		DBG("Score rules not found");
+		return;
+	}
+	int32 Score = Score_Rules->CalculateTileScore(Tile_Stack->Selected_Tile, Adjacent_Tiles);
+	Score_Popup_Widget->Score_Popup_Text->SetText(FText::FromString(FString::FromInt(Score)));
 }
 
 void AGhostTile::OnMouseEnd(UPrimitiveComponent* TouchedComponent) {
@@ -86,7 +118,7 @@ void AGhostTile::OnMouseEnd(UPrimitiveComponent* TouchedComponent) {
 
 
 	SM->SetMaterial(0, Initial_Material);
-	
+
 	Score_Popup_Widget->SetVisibility(ESlateVisibility::Collapsed);
 }
 

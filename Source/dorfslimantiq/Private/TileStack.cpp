@@ -2,7 +2,6 @@
 
 
 #include "TileStack.h"
-#include "Tile.h"
 #include "Tiletype.h"
 
 
@@ -23,7 +22,7 @@ void ATileStack::Tick(const float DeltaTime) {
 
 void ATileStack::AddTilesToStack(const uint32 Amount) {
 	for (uint32 i = 0; i < Amount; i++) {
-		uint8 n = FMath::RandRange(static_cast<int>(ETiletype::Meadow), static_cast<int>(ETiletype::End) - 1);
+		uint8 n = FMath::RandRange(static_cast<int>(ETiletype::Empty)+2, static_cast<int>(ETiletype::End) - 1);
 		ETiletype Tile_Type = static_cast<ETiletype>(n);
 		Available_Tiles.Push(Tile_Type);
 	}

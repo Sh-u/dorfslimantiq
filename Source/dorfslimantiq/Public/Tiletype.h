@@ -16,12 +16,14 @@ enum class ETiletype : uint8 {
 	End UMETA(DisplayName = "End")
 };
 
-inline FString GetTileTypeName(ETiletype EnumValue) {
-	const UEnum* EnumPtr = FindObject<UEnum>(nullptr, TEXT("/Script/dorfslimantiq.ETileType"), true);
-	
-	if (!EnumPtr) return FString("Invalid enum name.");
 
-	const FString Name = EnumPtr->GetNameByValue(static_cast<uint8>(EnumValue)).ToString();
+
+inline FString GetTileTypeName(ETiletype Enum_Value) {
+	const UEnum* Enum_Ptr = FindObject<UEnum>(nullptr, TEXT("/Script/dorfslimantiq.ETileType"), true);
+	
+	if (!Enum_Ptr) return FString("Invalid enum name.");
+
+	const FString Name = Enum_Ptr->GetNameByValue(static_cast<uint8>(Enum_Value)).ToString();
 	int32 Pos = 0;
 	Name.FindLastChar(':', Pos);
 	return Name.RightChop(Pos + 1);

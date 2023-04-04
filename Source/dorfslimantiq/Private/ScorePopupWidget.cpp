@@ -6,7 +6,7 @@
 
 void UScorePopupWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-	UE_LOG(LogTemp, Warning, TEXT("tick"));
+
 	if (!IsVisible()) return;
 	SetTextLocation();
 }
@@ -21,7 +21,6 @@ void UScorePopupWidget::SetTextLocation() {
 	int32 Screen_Height = 0;
 
 	Player_Controller->GetViewportSize(Screen_Width, Screen_Height);
-	UE_LOG(LogTemp, Warning, TEXT("Screen_Location: {%s}"), *Screen_Location.ToString());
 	this->SetPositionInViewport(Screen_Location);
 }
 

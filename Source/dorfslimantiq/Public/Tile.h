@@ -20,10 +20,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category="Default")
 	void HandleTileRotate();
 
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Default")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	ETiletype Tile_Type;
 
-	UPROPERTY(BlueprintReadWrite, Category="Default")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	TArray<FVector> Socket_Locations;
 
 	

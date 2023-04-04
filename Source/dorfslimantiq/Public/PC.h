@@ -52,7 +52,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	TObjectPtr<UUserWidget> Score_Text_Popup;
-
+	
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
 	int32 Score;

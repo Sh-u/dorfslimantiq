@@ -9,12 +9,14 @@
 class UScorePopupWidget;
 class ATileStack;
 class UStaticMeshComponent;
+class UScoreRulesBase;
 UCLASS()
 class DORFSLIMANTIQ_API AGhostTile final : public ATile {
 	GENERATED_BODY()
 
 public:
-
+	AGhostTile() : ATile() {};
+	
 	UFUNCTION()
 	void OnMouseOver(UPrimitiveComponent* TouchedComponent);
 	UFUNCTION()
@@ -31,6 +33,8 @@ public:
 	TObjectPtr<UStaticMeshComponent> Initial_SM;
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UMaterial> Initial_Material;
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UScoreRulesBase> Score_Rules;
 
 protected:
 	virtual void BeginPlay() override;
