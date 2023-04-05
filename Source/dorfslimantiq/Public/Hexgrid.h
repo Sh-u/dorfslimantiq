@@ -44,13 +44,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY(BlueprintReadWrite, Category="Default")
-	TObjectPtr<ATile> Target_Tile;
-
-	UPROPERTY(BlueprintReadWrite, Category="Default")
-	TArray<TObjectPtr<ATile>> Spawned_Tiles;
-
-
+	
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	float Map_Size_Multiplier;
 

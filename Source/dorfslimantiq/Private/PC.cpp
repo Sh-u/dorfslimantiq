@@ -1,5 +1,6 @@
 #include "PC.h"
 #include "CameraPawn.h"
+#include "GhostTile.h"
 #include "Hexgrid.h"
 #include "TileStack.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -50,30 +51,32 @@ void APC::Tick(const float DeltaSeconds) {
 
 
 void APC::PlaceTile() {
-	// UE_LOG(LogTemp, Warning, TEXT("PLACE TILE 1"));
+	
 	if (Disable_Tracing || !Tile_Stack->Selected_Tile) return;
+	
 	FHitResult Hit;
-
 	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-
-
+	
 	if (!Hit.bBlockingHit || !IsValid(Hit.GetActor())) return;
-	ATile* Tile = Cast<ATile>(Hit.GetActor());
-	// UE_LOG(LogTemp, Warning, TEXT("Hit tile type: %s"), *GetTileTypeName(Tile->Tile_Type));
+	
+	AGhostTile* Tile = Cast<AGhostTile>(Hit.GetActor());
+
 	if (Tile->Tile_Type != ETiletype::Ghost) return;
 
 	Hexgrid->OnReplaceTile.Broadcast(Tile_Stack->Selected_Tile, Tile->GetActorLocation());
+
+	Score += Tile->Score;
+	Tile->Cleanup();
 	Tile->Destroy();
 	Tile_Stack->OnPickTileFromStack.Broadcast();
 }
 
 void APC::HandleOnPickTileFromStack() {
-	
 	if (!Tile_Stack->Available_Tiles.IsEmpty()) {
 		const ETiletype Tile_Type = Tile_Stack->Available_Tiles[0];
 		Tile_Stack->Available_Tiles.RemoveAt(0);
 
-		UUIWidget* UIWidget = Cast<UUIWidget>(UI);
+		const UUIWidget* UIWidget = Cast<UUIWidget>(UI);
 
 		if (UIWidget && UIWidget->UMG_Tile_Stack_Box->HasAnyChildren()) {
 			UE_LOG(LogTemp, Warning, TEXT("Widget cast success"));

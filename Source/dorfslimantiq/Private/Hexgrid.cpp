@@ -2,10 +2,8 @@
 
 
 #include "Hexgrid.h"
-
 #include "GhostTile.h"
 #include "Tile.h"
-#include "dorfslimantiq/Public/Utils.h"
 
 AHexgrid::AHexgrid() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -82,7 +80,6 @@ void AHexgrid::HandleReplaceTIle(ATile* Selected_Tile, FVector& Location) {
 	SetMapSize(BoxExtent.X, BoxExtent.Y);
 
 	Selected_Tile->AttachToActor(this, Attachment_Rules);
-	// Selected_Tile->GenerateSocketLocations();
 	TArray<FVector> Spawn_Locations = Selected_Tile->GenerateAvailableSpawnLocations();
 	SpawnGhostTiles(Spawn_Locations);
 }
@@ -100,10 +97,6 @@ void AHexgrid::SpawnInitialTiles() {
 	const FAttachmentTransformRules Attachment_Rules = ConstructDefaultAttachmentRules();
 	Tile->AttachToActor(this, Attachment_Rules);
 	Tile->Owner = this;
-
-	DBG("Socket locations");
-	DBG("%i", Tile->Socket_Locations.Num());
-
 	SpawnGhostTiles(Tile->Socket_Locations);
 }
 

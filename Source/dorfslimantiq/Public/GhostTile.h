@@ -15,8 +15,13 @@ class DORFSLIMANTIQ_API AGhostTile final : public ATile {
 	GENERATED_BODY()
 
 public:
-	AGhostTile() : ATile() {};
-	
+	AGhostTile() : ATile() {
+		Score = 0;
+	};
+
+	UFUNCTION()
+	void Cleanup();
+
 	UFUNCTION()
 	void OnMouseOver(UPrimitiveComponent* TouchedComponent);
 	UFUNCTION()
@@ -24,7 +29,10 @@ public:
 
 	UFUNCTION()
 	void HandleOnRotateSelectedTile();
-	
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
+	int32 Score;
+
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<ATileStack> Tile_Stack;
 	UPROPERTY(BlueprintReadOnly)
@@ -35,8 +43,9 @@ public:
 	TObjectPtr<UMaterial> Initial_Material;
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UScoreRulesBase> Score_Rules;
+	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
+	TSubclassOf<UScoreRulesBase> Score_Rules_BP;
 
 protected:
 	virtual void BeginPlay() override;
-	
 };
