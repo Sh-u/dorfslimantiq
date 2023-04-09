@@ -1,7 +1,10 @@
 #include "PC.h"
 #include "CameraPawn.h"
+#include "Card.h"
+#include "CardPicker.h"
 #include "GhostTile.h"
 #include "Hexgrid.h"
+#include "MyGameInstance.h"
 #include "TileStack.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -9,28 +12,50 @@
 #include "Tiletype.h"
 #include "UIWidget.h"
 #include "Components/VerticalBox.h"
+#include "dorfslimantiq/Public/Utils.h"
 
 void APC::BeginPlay() {
 	Super::BeginPlay();
 
+	Game_Instance = Cast<UMyGameInstance>(GetGameInstance());
+
+	if (!Game_Instance) {
+		UE_LOG(LogTemp, Warning, TEXT("Game Instance not found -> PC."));
+		return;
+	}
+
+	Game_Instance->OnAddCard.AddDynamic(this, &APC::HandleOnAddCard);
+
 	AActor* TileStack_Actor = UGameplayStatics::GetActorOfClass(GetWorld(), ATileStack::StaticClass());
 	Tile_Stack = Cast<ATileStack>(TileStack_Actor);
+
 	if (!Tile_Stack) {
 		UE_LOG(LogTemp, Warning, TEXT("Null tile stack"));
 		return;
 	}
+
 	Tile_Stack->OnPickTileFromStack.AddDynamic(this, &APC::HandleOnPickTileFromStack);
 	Tile_Stack->OnPickTileFromStack.Broadcast();
+
 	APawn* Found_Pawn = this->GetPawn();
 	Camera_Pawn = Cast<ACameraPawn>(Found_Pawn);
+
 	if (!Camera_Pawn) return;
+
 	AActor* Hexgrid_Actor = UGameplayStatics::GetActorOfClass(GetWorld(), AHexgrid::StaticClass());
 
 	if (!Hexgrid_Actor) { return; }
+
 	Hexgrid = Cast<AHexgrid>(Hexgrid_Actor);
 
 
+	Card_Picker = Cast<ACardPicker>(UGameplayStatics::GetActorOfClass(this, ACardPicker::StaticClass()));
+	if (!Card_Picker) {
+		UE_LOG(LogTemp, Warning, TEXT("Card Picker not found -> PC."));
+		return;
+	}
 	if (!BP_UI) return;
+
 	UI = CreateWidget<UUserWidget>(this, BP_UI);
 	UI->AddToViewport();
 
@@ -44,49 +69,44 @@ void APC::BeginPlay() {
 void APC::Tick(const float DeltaSeconds) {
 	Super::Tick(DeltaSeconds);
 	MoveCamera();
-
-	// if(GEngine)
-	// 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow,  *Camera_Movement.ToString());	
 }
 
 
 void APC::PlaceTile() {
-	
-	if (Disable_Tracing || !Tile_Stack->Selected_Tile) return;
-	
+	if (Game_Instance->Disable_Tracing || !Tile_Stack->Selected_Tile) return;
+
 	FHitResult Hit;
 	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-	
+
 	if (!Hit.bBlockingHit || !IsValid(Hit.GetActor())) return;
-	
+
 	AGhostTile* Tile = Cast<AGhostTile>(Hit.GetActor());
 
 	if (Tile->Tile_Type != ETiletype::Ghost) return;
 
 	Hexgrid->OnReplaceTile.Broadcast(Tile_Stack->Selected_Tile, Tile->GetActorLocation());
-
-	Score += Tile->Score;
-	Tile->Cleanup();
-	Tile->Destroy();
+	// if (Game_Instance->OnAddScore.IsBound()) {
+	// 	Game_Instance->OnAddScore.Execute(Tile->Calculated_Score);
+	// }
+	Game_Instance->AddScore(Tile->Calculated_Score);
+	Tile->Cleanup(true);
 	Tile_Stack->OnPickTileFromStack.Broadcast();
 }
+
 
 void APC::HandleOnPickTileFromStack() {
 	if (!Tile_Stack->Available_Tiles.IsEmpty()) {
 		const ETiletype Tile_Type = Tile_Stack->Available_Tiles[0];
 		Tile_Stack->Available_Tiles.RemoveAt(0);
-
 		const UUIWidget* UIWidget = Cast<UUIWidget>(UI);
 
 		if (UIWidget && UIWidget->UMG_Tile_Stack_Box->HasAnyChildren()) {
-			UE_LOG(LogTemp, Warning, TEXT("Widget cast success"));
 			UIWidget->UMG_Tile_Stack_Box->RemoveChildAt(0);
 		}
 
 		const FVector Location = FVector(0, 800, 0);
 		FTransform Transform;
 		Transform.SetLocation(Location);
-
 		ATile* Tile = GetWorld()->SpawnActorDeferred<ATile>(BP_Tile, Transform);
 		Tile->Tile_Type = Tile_Type;
 		UGameplayStatics::FinishSpawningActor(Tile, Transform);
@@ -97,6 +117,11 @@ void APC::HandleOnPickTileFromStack() {
 		Tile_Stack->Selected_Tile = nullptr;
 		//remove from stack widget
 	}
+}
+
+void APC::HandleOnAddCard(UCard* Card) {
+	this->AddComponent(FName(*Card->Name), false, FTransform(), Card, false);
+	DBG("Card Added :D");
 }
 
 
@@ -114,8 +139,6 @@ void APC::MoveCamera() const {
 	if (!Camera_Pawn || !Hexgrid) { return; }
 
 	const FVector Current_Location = Camera_Pawn->GetActorLocation();
-
-
 	FVector New_Location = Camera_Movement + Current_Location;
 	New_Location.X = FMath::Clamp(New_Location.X, Hexgrid->Grid_X_Size * -1.0f, Hexgrid->Grid_X_Size);
 	New_Location.Y = FMath::Clamp(New_Location.Y, Hexgrid->Grid_Y_Size * -1.0f, Hexgrid->Grid_Y_Size);
@@ -128,6 +151,7 @@ void APC::ZoomCamera() const {
 	if (!Camera_Pawn) return;
 
 	USpringArmComponent* Arm = Camera_Pawn->FindComponentByClass<USpringArmComponent>();
+
 	if (!Arm) { return; }
 
 	const float Length = FMath::Lerp(Min_Zoom_Distance, Max_Zoom_Distance, Camera_Zoom);

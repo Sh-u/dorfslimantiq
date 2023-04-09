@@ -2,7 +2,7 @@
 
 
 UCard::UCard() {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	this->Name = "Card Name";
 	this->Description = "Description";

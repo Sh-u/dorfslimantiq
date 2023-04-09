@@ -16,7 +16,7 @@ void AGhostTile::BeginPlay() {
 	Super::BeginPlay();
 
 	Tile_Stack = Cast<ATileStack>(UGameplayStatics::GetActorOfClass(this, ATileStack::StaticClass()));
-	
+
 	if (!Tile_Stack) return;
 
 	Initial_SM = this->FindComponentByClass<UStaticMeshComponent>();
@@ -40,38 +40,49 @@ void AGhostTile::BeginPlay() {
 	this->Initial_SM->OnEndCursorOver.AddDynamic(this, &AGhostTile::OnMouseEnd);
 }
 
-void AGhostTile::Cleanup() {
-	Score = 0;
+void AGhostTile::Cleanup(const bool bIsDestructive) {
+	Calculated_Score = 0;
 	if (!Tile_Stack->Selected_Tile) return;
+
 	Tile_Stack->OnRotateSelectedTile.RemoveDynamic(this, &AGhostTile::HandleOnRotateSelectedTile);
-	UStaticMeshComponent* SM = this->FindComponentByClass<UStaticMeshComponent>();
 
 	TArray<AActor*> Tile_Children;
 	this->GetAttachedActors(Tile_Children);
 	for (const auto& Child : Tile_Children) {
 		Child->Destroy();
 	}
-	SM->SetMaterial(0, Initial_Material);
+
 	if (!Score_Popup_Widget) {
 		UE_LOG(LogTemp, Warning, TEXT("Score popup widget is not valid."));
 		DBG("Score popup widget is not valid");
 		return;
 	}
 	Score_Popup_Widget->SetVisibility(ESlateVisibility::Collapsed);
+
+	if (bIsDestructive) {
+		this->Destroy();
+		return;
+	}
+
+	UStaticMeshComponent* SM = this->FindComponentByClass<UStaticMeshComponent>();
+	SM->SetMaterial(0, Initial_Material);
 }
 
 void AGhostTile::OnMouseOver(UPrimitiveComponent* TouchedComponent) {
-	DBG("Enter");
+	
 	if (!Tile_Stack->Selected_Tile) return;
 
 	Tile_Stack->OnRotateSelectedTile.AddDynamic(this, &AGhostTile::HandleOnRotateSelectedTile);
 	this->SetActorRotation(Tile_Stack->Selected_Tile->GetActorRotation());
 	if (!Score_Popup_Widget) {
-		UE_LOG(LogTemp, Warning, TEXT("Not found score popup widget."));
 		TArray<UUserWidget*> Found_Widgets;
 		UWidgetBlueprintLibrary::GetAllWidgetsOfClass(this, Found_Widgets, UScorePopupWidget::StaticClass(), true);
 		if (Found_Widgets.IsEmpty()) return;
 		Score_Popup_Widget = Cast<UScorePopupWidget>(Found_Widgets[0]);
+		if (!Score_Popup_Widget) {
+			UE_LOG(LogTemp, Warning, TEXT("ScorePopupWidget not found -> GhostTile."));
+			return;
+		}
 	}
 
 
@@ -100,7 +111,7 @@ void AGhostTile::OnMouseOver(UPrimitiveComponent* TouchedComponent) {
 	                                                    SpawnParameters);
 	Spawned_Mesh_Actor->AttachToActor(this, AHexgrid::ConstructDefaultAttachmentRules());
 	Spawned_Mesh_Actor->Owner = this;
-	
+
 	Score_Popup_Widget->Render_Location = this->GetActorLocation();
 	Score_Popup_Widget->SetVisibility(ESlateVisibility::HitTestInvisible);
 
@@ -120,20 +131,19 @@ void AGhostTile::OnMouseOver(UPrimitiveComponent* TouchedComponent) {
 
 		Adjacent_Tiles.Push(Hit_Tile);
 	}
-	
+
 	DBG("Adjacent tiles -> %i", Adjacent_Tiles.Num());
 
 	if (!Score_Rules) {
 		UE_LOG(LogTemp, Warning, TEXT("Score rules not found log."));
 		return;
 	}
-	Score = Score_Rules->CalculateTileScore(Tile_Stack->Selected_Tile, Adjacent_Tiles);
-	Score_Popup_Widget->Score_Popup_Text->SetText(FText::FromString(FString::FromInt(Score)));
+	Calculated_Score = Score_Rules->CalculateTileScore(Tile_Stack->Selected_Tile, Adjacent_Tiles);
+	Score_Popup_Widget->Score_Popup_Text->SetText(FText::FromString(FString::FromInt(Calculated_Score)));
 }
 
 void AGhostTile::OnMouseEnd(UPrimitiveComponent* TouchedComponent) {
-	DBG("End");
-	Cleanup();
+	Cleanup(false);
 }
 
 void AGhostTile::HandleOnRotateSelectedTile() {

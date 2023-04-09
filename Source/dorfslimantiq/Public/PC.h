@@ -6,36 +6,24 @@
 #include "PC.generated.h"
 
 
+class ACardPicker;
+class UMyGameInstance;
 class APawn;
 class AHexgrid;
 class ATile;
 class ATileStack;
 class UUIWidget;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelUp);
+class UCard;
 
 UCLASS(Blueprintable, BlueprintType)
 class DORFSLIMANTIQ_API APC : public APlayerController {
 	GENERATED_BODY()
 
-	// public:
-	// 	UFUNCTION(BlueprintCallable)
-	// 	void addCardToInventory();
-	//
-	//
-	// 	UFUNCTION(BlueprintCallable)
-	// 	void getAvailableBundles();
-	//
-	//
-	// 	UFUNCTION(BlueprintCallable)
-	// 	void addScore(int32 score_to_add);
-	//
-	//
-	// 	UFUNCTION(BlueprintCallable)
-	// 	void spawnBundles();
-
 	UFUNCTION(BlueprintCallable, Category="Default")
 	void HandleOnPickTileFromStack();
+
+	UFUNCTION(BlueprintCallable, Category="Default")
+	void HandleOnAddCard(UCard* Card);
 
 public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
@@ -52,33 +40,29 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	TObjectPtr<UUserWidget> Score_Text_Popup;
-	
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
-	int32 Score;
+	UPROPERTY(BlueprintReadWrite, Category="Default")
+	TObjectPtr<UMyGameInstance> Game_Instance;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	int32 Threshold;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
-	int32 Level;
+	UPROPERTY(BlueprintReadWrite, Category="Default")
+	TObjectPtr<ACardPicker> Card_Picker;
 
 	UPROPERTY
-	(BlueprintReadWrite, EditDefaultsOnly, Category="Camera")
+	(BlueprintReadOnly, EditDefaultsOnly, Category="Camera")
 	FVector Camera_Movement;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Camera", meta=(ClampMin = "0.1", UIMin = "0.1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Camera", meta=(ClampMin = "0.1", UIMin = "0.1"))
 	float Zoom_Strength;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Camera")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Camera")
 	float Min_Camera_Speed;
 
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Camera")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Camera")
 	float Max_Camera_Speed;
 
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Camera",
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Camera",
 		meta=(ClampMin = "0.1", ClampMax = "1.0", UIMin = "0.1", UIMax = "1.0"))
 	float Camera_Zoom;
 
@@ -101,10 +85,6 @@ public:
 	// FPickBundle PickBundle;
 
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
-	bool Disable_Tracing;
-
-
 	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
 	TSubclassOf<ATile> BP_Tile;
 
@@ -119,8 +99,6 @@ public:
 	//
 	// UPROPERTY(BlueprintAssignable, EditDefaultsOnly, Category="Default")
 	// FRotateTile RotateTile;
-	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Default")
-	FLevelUp OnLevelUp;
 
 
 	virtual void Tick(float DeltaSeconds) override;

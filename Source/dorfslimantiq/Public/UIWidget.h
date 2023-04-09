@@ -6,10 +6,15 @@
 #include "Blueprint/UserWidget.h"
 #include "UIWidget.generated.h"
 
+class ACardPicker;
+class UMyGameInstance;
 class UVerticalBox;
 class ATileStack;
 class UTextBlock;
-class APC;
+class UScaleBox;
+class UButton;
+class UHorizontalBox;
+class UCardButton;
 UCLASS()
 class DORFSLIMANTIQ_API UUIWidget : public UUserWidget {
 	GENERATED_BODY()
@@ -29,20 +34,41 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AddTextToTileStack();
-	
+
+
+	UFUNCTION(BlueprintCallable)
+	void HandleOnCardChosen(class UCard* Chosen_Card, class UCardButton* UMG_Card);
+
+	UFUNCTION(BlueprintCallable)
+	void HandleLevelUp();
+
 	UPROPERTY(BlueprintReadOnly, Category="Default")
-	TObjectPtr<APC> Player_Controller;
+	TObjectPtr<UMyGameInstance> Game_Instance;
 
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	TObjectPtr<ATileStack> Tile_Stack;
 
+	UPROPERTY(BlueprintReadWrite, Category="Default")
+	TObjectPtr<ACardPicker> Card_Picker;
+
 	UPROPERTY(BlueprintReadOnly, Category="Default")
 	TObjectPtr<UVerticalBox> UMG_Tile_Stack_Box;
+
+
+	UPROPERTY(BlueprintReadOnly, Category="Default")
+	TObjectPtr<UHorizontalBox> UMG_Inventory_Box;
+
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	TObjectPtr<UHorizontalBox> UMG_Card_Picker_Box;
 
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeOnInitialized() override;
+
 private:
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UScaleBox> UMG_Card_Picker_Container;
+
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> UMG_Selected_Tile_Text;
@@ -58,4 +84,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
 	TSubclassOf<ATileStack> BP_Tile_Stack;
+
+	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
+	TSubclassOf<UCardButton> BP_CardButton;
 };

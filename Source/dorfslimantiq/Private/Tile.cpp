@@ -18,9 +18,8 @@ TArray<FVector> ATile::GenerateAvailableSpawnLocations() {
 	FVector Trace_Start = GetActorLocation();
 	FCollisionQueryParams Query_Params;
 	Query_Params.AddIgnoredActor(this);
-	// UE_LOG(LogTemp, Warning, TEXT("This tile location: %s"), *Trace_Start.ToString());
+
 	for (const FVector& Location : Socket_Locations) {
-		UE_LOG(LogTemp, Warning, TEXT("Socket locations: %s"), *Location.ToString());
 		FVector Trace_End = Trace_Start + Location;
 		GetWorld()->LineTraceSingleByChannel(Hit, Trace_Start, Trace_End, ECC_Visibility, Query_Params);
 		// DrawDebugLine(GetWorld(), Trace_Start, Location, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 30.0f, 0, 10.0f);

@@ -11,19 +11,17 @@ class DORFSLIMANTIQ_API UCard : public UActorComponent {
 
 public:
 	UCard();
-
-protected:
-	virtual void BeginPlay() override;
-	UFUNCTION(BlueprintCallable, Category="Default")
-	virtual void CalculateScore() {
-	};
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	FString Name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	FString Description;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
-	UTexture2D* Image;
+	TObjectPtr<UTexture2D> Image;
+
+protected:
+	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable, Category="Default")
+	virtual int32 ApplyCardBonus() { return 0; }
 
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
