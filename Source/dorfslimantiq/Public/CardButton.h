@@ -10,7 +10,10 @@ class UButton;
 class UCard;
 class UImage;
 class UTextBlock;
+class USizeBox;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FClick, UCard*, Card, UCardButton*, UMG_Card);
+
 
 UCLASS()
 class DORFSLIMANTIQ_API UCardButton : public UUserWidget {
@@ -19,6 +22,12 @@ class DORFSLIMANTIQ_API UCardButton : public UUserWidget {
 public:
 	UFUNCTION()
 	void HandleOnClick();
+
+	UFUNCTION()
+	void UpdateInventoryDisplay();
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
+	int32 Size_In_Inventory;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	TObjectPtr<UCard> Card;
@@ -32,6 +41,8 @@ public:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> UMG_Description;
 
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<USizeBox> UMG_Size_Box;
 
 	UPROPERTY()
 	FClick OnClick;

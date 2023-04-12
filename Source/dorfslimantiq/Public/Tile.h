@@ -26,8 +26,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	TArray<FVector> Socket_Locations;
 
-	
-
 protected:
 	virtual void BeginPlay() override;
 

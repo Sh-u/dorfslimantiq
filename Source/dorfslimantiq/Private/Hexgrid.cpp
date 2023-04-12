@@ -86,7 +86,6 @@ void AHexgrid::HandleReplaceTIle(ATile* Selected_Tile, FVector& Location) {
 
 
 void AHexgrid::SpawnInitialTiles() {
-	
 	FActorSpawnParameters Spawn_Params;
 	Spawn_Params.Owner = this;
 

@@ -1,9 +1,9 @@
 #include "PC.h"
 #include "CameraPawn.h"
-#include "Card.h"
 #include "CardPicker.h"
 #include "GhostTile.h"
 #include "Hexgrid.h"
+#include "Inventory.h"
 #include "MyGameInstance.h"
 #include "TileStack.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -24,7 +24,14 @@ void APC::BeginPlay() {
 		return;
 	}
 
-	Game_Instance->OnAddCard.AddDynamic(this, &APC::HandleOnAddCard);
+	if (!BP_Inventory) {
+		UE_LOG(LogTemp, Warning, TEXT("BP_Inventory class must be set -> PC."));
+		return;
+	}
+
+	Inventory = Cast<AInventory>(
+		UGameplayStatics::GetActorOfClass(GetWorld(), BP_Inventory.GetDefaultObject()->GetClass()));
+
 
 	AActor* TileStack_Actor = UGameplayStatics::GetActorOfClass(GetWorld(), ATileStack::StaticClass());
 	Tile_Stack = Cast<ATileStack>(TileStack_Actor);
@@ -73,7 +80,7 @@ void APC::Tick(const float DeltaSeconds) {
 
 
 void APC::PlaceTile() {
-	if (Game_Instance->Disable_Tracing || !Tile_Stack->Selected_Tile) return;
+	if (!Game_Instance->bEnabledTracing || !Tile_Stack->Selected_Tile) return;
 
 	FHitResult Hit;
 	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
@@ -82,17 +89,17 @@ void APC::PlaceTile() {
 
 	AGhostTile* Tile = Cast<AGhostTile>(Hit.GetActor());
 
-	if (Tile->Tile_Type != ETiletype::Ghost) return;
+	if (!Tile) return;
 
 	Hexgrid->OnReplaceTile.Broadcast(Tile_Stack->Selected_Tile, Tile->GetActorLocation());
-	// if (Game_Instance->OnAddScore.IsBound()) {
-	// 	Game_Instance->OnAddScore.Execute(Tile->Calculated_Score);
-	// }
-	Game_Instance->AddScore(Tile->Calculated_Score);
+
+	if (Game_Instance->OnAddScore.IsBound()) {
+		Game_Instance->OnAddScore.Execute(Tile->Calculated_Score);
+	}
+	
 	Tile->Cleanup(true);
 	Tile_Stack->OnPickTileFromStack.Broadcast();
 }
-
 
 void APC::HandleOnPickTileFromStack() {
 	if (!Tile_Stack->Available_Tiles.IsEmpty()) {
@@ -118,12 +125,6 @@ void APC::HandleOnPickTileFromStack() {
 		//remove from stack widget
 	}
 }
-
-void APC::HandleOnAddCard(UCard* Card) {
-	this->AddComponent(FName(*Card->Name), false, FTransform(), Card, false);
-	DBG("Card Added :D");
-}
-
 
 void APC::RotateSelectedTile() {
 	if (!Tile_Stack->Selected_Tile) return;

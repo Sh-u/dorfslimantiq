@@ -3,6 +3,7 @@
 #include "Card.h"
 #include "CardButton.h"
 #include "CardPicker.h"
+#include "Inventory.h"
 #include "MyGameInstance.h"
 #include "Tile.h"
 #include "TileStack.h"
@@ -13,6 +14,7 @@
 #include "Components/Image.h"
 #include "Components/Button.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Components/Overlay.h"
 #include "Blueprint/WidgetTree.h"
 #include "dorfslimantiq/Public/Utils.h"
 #include "Kismet/GameplayStatics.h"
@@ -47,12 +49,33 @@ void UUIWidget::AddTextToTileStack() {
 	}
 }
 
+
 void UUIWidget::HandleOnCardChosen(UCard* Chosen_Card, UCardButton* UMG_Card) {
+	UMG_Card->OnClick.RemoveDynamic(this, &UUIWidget::HandleOnCardChosen);
 	UMG_Card_Picker_Container->SetVisibility(ESlateVisibility::Hidden);
 	UMG_Card_Picker_Box->ClearChildren();
+	UMG_Card->UpdateInventoryDisplay();
 	UMG_Inventory_Box->AddChild(UMG_Card);
-	Game_Instance->OnAddCard.Broadcast(Chosen_Card);
-	Game_Instance->Disable_Tracing = false;
+	Inventory->OnAddCard.Broadcast(Chosen_Card);
+	Game_Instance->OnEnableTracing.Broadcast(true);
+	UMG_Card->OnClick.AddDynamic(this, &UUIWidget::HandleShowCardDetails);
+}
+
+void UUIWidget::HandleShowCardDetails(UCard* Chosen_Card, UCardButton* UMG_Card) {
+	
+	UMG_Card_Details_Container->SetVisibility(ESlateVisibility::Visible);
+	Game_Instance->OnEnableTracing.Broadcast(false);
+	
+	if (Last_Card_Showed == UMG_Card) {
+		DBG("Same :D");
+		return;
+	}
+	DBG("Not same :D");
+	UMG_Card_Details_Image->SetBrushFromTexture(Chosen_Card->Image);
+	UMG_Card_Details_Exit_Btn->OnClicked.AddDynamic(this, &UUIWidget::HideCardDetails);
+	UMG_Card_Details_Name->SetText(FText::FromString(Chosen_Card->Name));
+	UMG_Card_Details_Description->SetText(FText::FromString(Chosen_Card->Description));
+	Last_Card_Showed = UMG_Card;
 }
 
 void UUIWidget::HandleLevelUp() {
@@ -60,7 +83,7 @@ void UUIWidget::HandleLevelUp() {
 	if (Card_Picker->Cards.Num() != 3) return;
 
 	UMG_Card_Picker_Container->SetVisibility(ESlateVisibility::Visible);
-	Game_Instance->Disable_Tracing = true;
+	Game_Instance->OnEnableTracing.Broadcast(false);
 
 	for (const auto& Card : Card_Picker->Cards) {
 		UCardButton* UMG_Card_Button = CreateWidget<UCardButton>(this, BP_CardButton);
@@ -73,16 +96,23 @@ void UUIWidget::HandleLevelUp() {
 
 		if (!UMG_Card_Button->UMG_Button) continue;
 
-		UMG_Card_Button->SetPadding(FMargin(20, 10));
+		// UMG_Card_Button->SetPadding(FMargin(20, 10));
 
 		FButtonStyle Style = UMG_Card_Button->UMG_Button->WidgetStyle;
 		Style.Normal.SetResourceObject(Card->Image);
+		Style.Hovered.SetResourceObject(Card->Image);
+		Style.Pressed.SetResourceObject(Card->Image);
 		UMG_Card_Button->UMG_Button->SetStyle(Style);
 		UMG_Card_Button->UMG_Name->SetText(FText::FromString(Card->Name));
 		UMG_Card_Button->UMG_Description->SetText(FText::FromString(Card->Description));
 	}
 
 	AddTextToTileStack();
+}
+
+void UUIWidget::HideCardDetails() {
+	UMG_Card_Details_Container->SetVisibility(ESlateVisibility::Collapsed);
+	Game_Instance->OnEnableTracing.Broadcast(true);
 }
 
 void UUIWidget::NativeConstruct() {
@@ -97,9 +127,10 @@ void UUIWidget::NativeOnInitialized() {
 	Game_Instance = Cast<UMyGameInstance>(GetGameInstance());
 	Tile_Stack = Cast<ATileStack>(UGameplayStatics::GetActorOfClass(GetWorld(), ATileStack::StaticClass()));
 	Card_Picker = Cast<ACardPicker>(UGameplayStatics::GetActorOfClass(GetWorld(), ACardPicker::StaticClass()));
-
-	if (!Game_Instance || !Tile_Stack || !Card_Picker) {
-		UE_LOG(LogTemp, Warning, TEXT("Game Instance or Tile Stack or Card Picker not found -> UIWidget."));
+	Inventory = Cast<AInventory>(UGameplayStatics::GetActorOfClass(GetWorld(), AInventory::StaticClass()));
+	if (!Game_Instance || !Tile_Stack || !Card_Picker || !Inventory) {
+		UE_LOG(LogTemp, Warning,
+		       TEXT("Game Instance or Tile Stack or Card Picker or Inventory not found -> UIWidget."));
 		return;
 	}
 	Game_Instance->OnLevelUp.AddDynamic(this, &UUIWidget::HandleLevelUp);

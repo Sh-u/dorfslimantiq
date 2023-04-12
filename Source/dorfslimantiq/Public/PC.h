@@ -14,6 +14,8 @@ class ATile;
 class ATileStack;
 class UUIWidget;
 class UCard;
+class AInventory;
+
 
 UCLASS(Blueprintable, BlueprintType)
 class DORFSLIMANTIQ_API APC : public APlayerController {
@@ -21,9 +23,6 @@ class DORFSLIMANTIQ_API APC : public APlayerController {
 
 	UFUNCTION(BlueprintCallable, Category="Default")
 	void HandleOnPickTileFromStack();
-
-	UFUNCTION(BlueprintCallable, Category="Default")
-	void HandleOnAddCard(UCard* Card);
 
 public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
@@ -46,6 +45,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	TObjectPtr<ACardPicker> Card_Picker;
+
+	UPROPERTY(EditDefaultsOnly, Category="Default")
+	TObjectPtr<AInventory> Inventory;
 
 	UPROPERTY
 	(BlueprintReadOnly, EditDefaultsOnly, Category="Camera")
@@ -94,7 +96,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "BP_ASSETS")
 	TSubclassOf<UUserWidget> BP_ScorePopup;
 
-
+	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
+	TSubclassOf<AInventory> BP_Inventory;
 	// DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRotateTile);
 	//
 	// UPROPERTY(BlueprintAssignable, EditDefaultsOnly, Category="Default")

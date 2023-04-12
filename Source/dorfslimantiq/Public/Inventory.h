@@ -3,30 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Card.h"
-#include "Components/ActorComponent.h"
+#include "GameFramework/Actor.h"
 #include "Inventory.generated.h"
+class UCard;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAddCard, UCard*, Card);
 
-UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class DORFSLIMANTIQ_API UInventory : public UActorComponent
-{
+UCLASS(Blueprintable)
+class DORFSLIMANTIQ_API AInventory : public AActor {
 	GENERATED_BODY()
 
-public:	
-	
-	UInventory();
+public:
+	AInventory();
+	UFUNCTION(BlueprintCallable)
+	void HandleOnAddCard(UCard* Card);
+
+	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Events")
+	FAddCard OnAddCard;
+
+	TArray<UCard*> GetCards() { return Cards; };
 
 protected:
-	
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadWrite, Category="Default")
+private:
 	TArray<UCard*> Cards;
-
-public:	
-	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
 };

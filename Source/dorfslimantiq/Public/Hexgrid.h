@@ -7,7 +7,6 @@
 #include "Hexgrid.generated.h"
 
 class ATile;
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FReplaceTile, ATile*, Selected_Tile, const FVector&, Location);
 
 
@@ -44,7 +43,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	
 	UPROPERTY(BlueprintReadWrite, Category="Default")
 	float Map_Size_Multiplier;
 
@@ -62,6 +60,6 @@ public:
 	TSubclassOf<ATile> Ghost_Tile;
 
 
-	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Game|Cpp")
+	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Event")
 	FReplaceTile OnReplaceTile;
 };

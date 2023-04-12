@@ -4,16 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "ScoreRules.h"
 #include "MyGameInstance.generated.h"
 
-// DECLARE_DELEGATE_OneParam(FAddScore, const int32);
-
+DECLARE_DELEGATE_OneParam(FAddScore, const int32);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelUp);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAddCard, class UCard*, Card);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEnableTracing, const bool, bEnabled);
 
 class ATileStack;
+class ATile;
+
 
 UCLASS()
 class DORFSLIMANTIQ_API UMyGameInstance : public UGameInstance {
@@ -21,35 +22,46 @@ class DORFSLIMANTIQ_API UMyGameInstance : public UGameInstance {
 
 public:
 	UFUNCTION(BlueprintCallable, Category="Default")
-	void AddScore(const int32 Score_To_Add);
+	int32 CalculateTileScore(const ATile* Base_Tile, const TArray<ATile*> Adjacent_Tiles);
 
-	UFUNCTION(BlueprintCallable, Category="Default")
-	void HandleOnLevelUp();
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
+	TMap<ETiletype, FScoreRules> Score_Rules;
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	TObjectPtr<ATileStack> Tile_Stack;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Score", meta=(ClampMin ="1"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default", meta=(ClampMin ="1"))
 	int32 Threshold_Multiplier;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Score")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	int32 Score;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Score")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	int32 Threshold;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Score")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	int32 Level;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Default")
-	bool Disable_Tracing;
+	bool bEnabledTracing;
 
-	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Default")
+	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Events")
 	FLevelUp OnLevelUp;
 
-	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Default")
-	FAddCard OnAddCard;
+	UPROPERTY(BlueprintReadWrite, BlueprintCallable, BlueprintAssignable, Category="Events")
+	FEnableTracing OnEnableTracing;
+
+	FAddScore OnAddScore;
 
 protected:
 	virtual void Init() override;
+
+private:
+	UFUNCTION(BlueprintCallable, Category="Default")
+	void AddScore(const int32 Score_To_Add);
+
+	UFUNCTION(BlueprintCallable, Category="Default")
+	void HandleLevelUp();
+
+	UFUNCTION(BlueprintCallable, Category="Default")
+	void HandleEnableTracing(const bool bEnabled);
+
+	TObjectPtr<ATileStack> Tile_Stack;
 };
