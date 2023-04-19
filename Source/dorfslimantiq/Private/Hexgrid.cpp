@@ -16,8 +16,8 @@ void AHexgrid::BeginPlay() {
 	SpawnInitialTiles();
 
 	const FVector2D BoxExtent = CalculateGridBounds();
-	const float X = BoxExtent.X * Map_Size_Multiplier;
-	const float Y = BoxExtent.Y * Map_Size_Multiplier;
+	const float X = BoxExtent.X * Map_Size_Multiplier + 1200;
+	const float Y = BoxExtent.Y * Map_Size_Multiplier + 1200;
 	SetMapSize(X, Y);
 	// for (const auto Child : this->Children) {
 	// 	UE_LOG(LogTemp, Warning, TEXT("Child: %s"), *Child->GetName());
@@ -30,8 +30,8 @@ void AHexgrid::Tick(float DeltaTime) {
 
 
 void AHexgrid::SetMapSize(const float X, const float Y) {
-	Grid_X_Size += X;
-	Grid_Y_Size += Y;
+	Grid_Size.X += X;
+	Grid_Size.Y += Y;
 }
 
 void AHexgrid::SpawnGhostTiles(TArray<FVector>& Locations) {
@@ -60,6 +60,7 @@ FVector2D AHexgrid::CalculateGridBounds() const {
 		if (BoxExtent.X > X) {
 			X = BoxExtent.X;
 		}
+
 		if (BoxExtent.Y > Y) {
 			Y = BoxExtent.Y;
 		}
@@ -70,8 +71,9 @@ FVector2D AHexgrid::CalculateGridBounds() const {
 
 void AHexgrid::HandleReplaceTIle(ATile* Selected_Tile, FVector& Location) {
 	const FAttachmentTransformRules Attachment_Rules = ConstructDefaultAttachmentRules();
-
+	Selected_Tile->SetHidden(false);
 	Selected_Tile->SetActorLocation(Location);
+
 
 	FVector Origin;
 	FVector BoxExtent;

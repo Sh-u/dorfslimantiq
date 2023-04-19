@@ -6,6 +6,9 @@
 #include "PC.generated.h"
 
 
+class UCameraComponent;
+class USpringArmComponent;
+class ACameraPawn;
 class ACardPicker;
 class UMyGameInstance;
 class APawn;
@@ -25,9 +28,6 @@ class DORFSLIMANTIQ_API APC : public APlayerController {
 	void HandleOnPickTileFromStack();
 
 public:
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
-	TObjectPtr<APawn> Camera_Pawn;
-
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Default")
 	TObjectPtr<AHexgrid> Hexgrid;
 
@@ -49,9 +49,24 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Default")
 	TObjectPtr<AInventory> Inventory;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Camera")
+	TObjectPtr<APawn> Camera_Pawn;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Camera")
+	TObjectPtr<USpringArmComponent> Spring_Arm;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Camera")
+	TObjectPtr<UCameraComponent> Camera_Comp;
+
+	UPROPERTY(Blueprintreadwrite, EditAnywhere, Category="Camera")
+	bool bEnabledCameraRotation;
+
 	UPROPERTY
 	(BlueprintReadOnly, EditDefaultsOnly, Category="Camera")
 	FVector Camera_Movement;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Camera", meta=(ClampMin = "1", UIMin = "1"))
+	float Camera_Rotation_Speed;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Camera", meta=(ClampMin = "0.1", UIMin = "0.1"))
 	float Zoom_Strength;
@@ -98,6 +113,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
 	TSubclassOf<AInventory> BP_Inventory;
+
+	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
+	TSubclassOf<ACameraPawn> BP_CameraPawn;
 	// DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRotateTile);
 	//
 	// UPROPERTY(BlueprintAssignable, EditDefaultsOnly, Category="Default")
@@ -115,6 +133,10 @@ private:
 	void MoveY(float Value);
 	void ZoomOut();
 	void ZoomIn();
+	void EnableCameraRotation();
+	void DisableCameraRotation();
+	void RotateCameraX(float Value);
+	void RotateCameraY(float Value);
 
 	void PlaceTile();
 	void RotateSelectedTile();

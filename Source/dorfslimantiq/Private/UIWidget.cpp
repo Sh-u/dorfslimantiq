@@ -96,8 +96,6 @@ void UUIWidget::HandleLevelUp() {
 
 		if (!UMG_Card_Button->UMG_Button) continue;
 
-		// UMG_Card_Button->SetPadding(FMargin(20, 10));
-
 		FButtonStyle Style = UMG_Card_Button->UMG_Button->WidgetStyle;
 		Style.Normal.SetResourceObject(Card->Image);
 		Style.Hovered.SetResourceObject(Card->Image);

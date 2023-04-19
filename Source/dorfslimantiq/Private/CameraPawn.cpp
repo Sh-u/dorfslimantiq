@@ -5,6 +5,8 @@
 
 ACameraPawn::ACameraPawn() {
 	PrimaryActorTick.bCanEverTick = false;
+
+	
 }
 
 void ACameraPawn::BeginPlay() {

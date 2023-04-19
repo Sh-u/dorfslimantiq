@@ -21,7 +21,7 @@ void UCardButton::NativeConstruct() {
 
 void UCardButton::UpdateInventoryDisplay() {
 	FSlateFontInfo Font = this->UMG_Name->GetFont();
-	Font.Size = 20;
+	Font.Size = 16;
 	this->UMG_Size_Box->SetMaxDesiredHeight(this->Size_In_Inventory);
 	this->UMG_Size_Box->SetMaxDesiredWidth(this->Size_In_Inventory);
 	this->UMG_Name->SetFont(Font);

@@ -17,21 +17,23 @@ class DORFSLIMANTIQ_API ATileStack : public AActor {
 
 public:
 	ATileStack();
-
+	
 	UFUNCTION(Category="Default")
 	void AddTilesToStack(uint32 Amount);
-	
 
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category="Tile")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Default")
 	TObjectPtr<ATile> Selected_Tile;
 
-	UPROPERTY(BlueprintReadWrite, Category="Default")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Default")
 	TArray<ETiletype> Available_Tiles;
 
-	UPROPERTY(BlueprintAssignable, Category="Default")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Default")
+	TMap<ETiletype, float> Spawn_Chance;
+
+	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnPickTileFromStack OnPickTileFromStack;
 
-	UPROPERTY(BlueprintAssignable, Category="Default")
+	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnRotateSelectedTile OnRotateSelectedTile;
 
 protected:

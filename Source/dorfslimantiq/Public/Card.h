@@ -22,6 +22,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
 	TObjectPtr<UTexture2D> Image;
 
+	UPROPERTY(BlueprintReadWrite, Category="Default")
+	TMap<ETiletype, int32> Adjacent_Tiles;
+
 protected:
 	virtual void BeginPlay() override;
 };

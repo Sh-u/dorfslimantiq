@@ -47,11 +47,7 @@ public:
 	float Map_Size_Multiplier;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Default")
-	float Grid_X_Size;
-
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Default")
-	float Grid_Y_Size;
-
+	FVector2D Grid_Size;
 
 	UPROPERTY(EditDefaultsOnly, Category="BP_ASSETS")
 	TSubclassOf<ATile> Initial_Tile;
